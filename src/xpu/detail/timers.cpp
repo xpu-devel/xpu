@@ -16,7 +16,7 @@ struct timer {
     timer() : start(std::chrono::high_resolution_clock::now()) {}
 };
 
-static struct {
+thread_local static struct {
     std::vector<timer> stack;
 } T;
 
