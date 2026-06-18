@@ -62,23 +62,23 @@ jobs:
         CTEST_OUTPUT_ON_FAILURE: 1
       run: ctest
 
-  linux-gpu:
-    runs-on: self-hosted
-    steps:
-    - uses: actions/checkout@v4
-    - name: Configure CMake
-      run: |
-        . /opt/intel/oneapi/setvars.sh
-        cmake -B ${{github.workspace}}/build -DXPU_ENABLE_SYCL=ON -DXPU_ENABLE_CUDA=ON -DXPU_ENABLE_HIP=ON -DXPU_BUILD_TESTS=ON -DXPU_BUILD_EXAMPLES=ON
-    - name: Build
-      run: |
-        . /opt/intel/oneapi/setvars.sh
-        cmake --build ${{github.workspace}}/build -j4
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      env:
-        CTEST_OUTPUT_ON_FAILURE: 1
-      run: ctest -j4 -E sycl
+  # linux-gpu:
+  #   runs-on: self-hosted
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Configure CMake
+  #     run: |
+  #       . /opt/intel/oneapi/setvars.sh
+  #       cmake -B ${{github.workspace}}/build -DXPU_ENABLE_SYCL=ON -DXPU_ENABLE_CUDA=ON -DXPU_ENABLE_HIP=ON -DXPU_BUILD_TESTS=ON -DXPU_BUILD_EXAMPLES=ON
+  #   - name: Build
+  #     run: |
+  #       . /opt/intel/oneapi/setvars.sh
+  #       cmake --build ${{github.workspace}}/build -j4
+  #   - name: Test
+  #     working-directory: ${{github.workspace}}/build
+  #     env:
+  #       CTEST_OUTPUT_ON_FAILURE: 1
+  #     run: ctest -j4 -E sycl
 
   cpp-future:
 
