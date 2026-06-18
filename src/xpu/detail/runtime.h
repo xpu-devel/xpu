@@ -157,7 +157,7 @@ private:
         }
         m_images.add(i, d);
 
-        if (d != cpu && m_images.find<I>(cpu) == nullptr) {
+        if (d != cpu && m_images.find< image<I> >(cpu) == nullptr) {
             XPU_LOG("Loading image '%s' for CPU.", type_name<I>());
             image<I> *cpu_image = new image<I>{};
             cpu_image->dump_symbols();
