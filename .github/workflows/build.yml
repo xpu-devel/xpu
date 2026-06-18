@@ -118,7 +118,7 @@ jobs:
   macos:
     strategy:
       matrix:
-        version: [13, 14, 15]
+        version: [14, 15, 26]
 
     runs-on: macos-${{ matrix.version }}
 
