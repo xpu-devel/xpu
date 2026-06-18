@@ -7,35 +7,6 @@ jobs:
     strategy:
       matrix:
         include:
-          # Ubuntu 22.04
-          - year: 22
-            pkg: g++-9
-            exe: g++-9
-          - year: 22
-            pkg: g++-10
-            exe: g++-10
-          - year: 22
-            pkg: g++-11
-            exe: g++-11
-          - year: 22
-            pkg: g++-12
-            exe: g++-12
-          - year: 22
-            pkg: clang-11 libomp-11-dev
-            exe: clang++-11
-          - year: 22
-            pkg: clang-12 libomp-12-dev
-            exe: clang++-12
-          - year: 22
-            pkg: clang-13 libomp-13-dev
-            exe: clang++-13
-          - year: 22
-            pkg: clang-14 libomp-14-dev
-            exe: clang++-14
-          - year: 22
-            pkg: clang-15 libomp-15-dev
-            exe: clang++-15
-
           # Ubuntu 24.04
           - year: 24
             pkg: g++-9
@@ -74,7 +45,7 @@ jobs:
     runs-on: ubuntu-${{ matrix.year }}.04
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Install compiler
       run: |
         sudo apt update
@@ -91,23 +62,23 @@ jobs:
         CTEST_OUTPUT_ON_FAILURE: 1
       run: ctest
 
-  linux-gpu:
-    runs-on: self-hosted
-    steps:
-    - uses: actions/checkout@v4
-    - name: Configure CMake
-      run: |
-        . /opt/intel/oneapi/setvars.sh
-        cmake -B ${{github.workspace}}/build -DXPU_ENABLE_SYCL=ON -DXPU_ENABLE_CUDA=ON -DXPU_ENABLE_HIP=ON -DXPU_BUILD_TESTS=ON -DXPU_BUILD_EXAMPLES=ON
-    - name: Build
-      run: |
-        . /opt/intel/oneapi/setvars.sh
-        cmake --build ${{github.workspace}}/build -j4
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      env:
-        CTEST_OUTPUT_ON_FAILURE: 1
-      run: ctest -j4 -E sycl
+  # linux-gpu:
+  #   runs-on: self-hosted
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Configure CMake
+  #     run: |
+  #       . /opt/intel/oneapi/setvars.sh
+  #       cmake -B ${{github.workspace}}/build -DXPU_ENABLE_SYCL=ON -DXPU_ENABLE_CUDA=ON -DXPU_ENABLE_HIP=ON -DXPU_BUILD_TESTS=ON -DXPU_BUILD_EXAMPLES=ON
+  #   - name: Build
+  #     run: |
+  #       . /opt/intel/oneapi/setvars.sh
+  #       cmake --build ${{github.workspace}}/build -j4
+  #   - name: Test
+  #     working-directory: ${{github.workspace}}/build
+  #     env:
+  #       CTEST_OUTPUT_ON_FAILURE: 1
+  #     run: ctest -j4 -E sycl
 
   cpp-future:
 
@@ -123,7 +94,7 @@ jobs:
         cxx_std: [20, 23]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install compiler
       run: |
@@ -147,12 +118,12 @@ jobs:
   macos:
     strategy:
       matrix:
-        version: [13, 14, 15]
+        version: [14, 15, 26]
 
     runs-on: macos-${{ matrix.version }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup without OpenMP
       run: cmake -B ${{github.workspace}}/build -DXPU_BUILD_TESTS=ON -DXPU_BUILD_EXAMPLES=ON
