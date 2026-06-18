@@ -7,35 +7,6 @@ jobs:
     strategy:
       matrix:
         include:
-          # Ubuntu 22.04
-          - year: 22
-            pkg: g++-9
-            exe: g++-9
-          - year: 22
-            pkg: g++-10
-            exe: g++-10
-          - year: 22
-            pkg: g++-11
-            exe: g++-11
-          - year: 22
-            pkg: g++-12
-            exe: g++-12
-          - year: 22
-            pkg: clang-11 libomp-11-dev
-            exe: clang++-11
-          - year: 22
-            pkg: clang-12 libomp-12-dev
-            exe: clang++-12
-          - year: 22
-            pkg: clang-13 libomp-13-dev
-            exe: clang++-13
-          - year: 22
-            pkg: clang-14 libomp-14-dev
-            exe: clang++-14
-          - year: 22
-            pkg: clang-15 libomp-15-dev
-            exe: clang++-15
-
           # Ubuntu 24.04
           - year: 24
             pkg: g++-9
