@@ -1,0 +1,76 @@
+name: GPU Simulator
+
+# Optional, non-required check. The hosted runners have no GPU, so this builds
+# the HIP backend and runs the unit tests on it (the commented-out `linux-gpu`
+# job in build.yml was meant for a self-hosted GPU runner) on a simulated AMD
+# MI300X (https://github.com/pantheongpu/pantheonsim). A simulator cannot
+# reproduce hardware-specific behavior or timing, so it complements real-GPU
+# testing and does not replace it.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - "src/**"
+      - "test/**"
+      - "examples/**"
+      - "benchmark/**"
+      - "templates/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/gpu-sim.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  hip:
+    name: HIP (ROCm 7.1 and simulated MI300X)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+
+    - name: Set up the simulated GPU and ROCm
+      uses: pantheongpu/setup-pantheonsim@ca87fe3143b29166822b923d6050945c5179408c # v0.1.5
+      with:
+        gpu: amd/mi300x
+        cuda-toolkit: none
+        rocm: "7.1"
+
+    # The action installs only the compiler side of ROCm; the xpu HIP backend
+    # also needs rocPRIM and hipCUB.
+    - name: Install rocPRIM and hipCUB
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y rocprim-dev hipcub-dev
+
+    # XPU_HIP_ARCH defaults to gfx906;gfx908, override it with the simulated
+    # MI300X (gfx942).
+    - name: Configure CMake
+      run: |
+        cmake -B ${{github.workspace}}/build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DXPU_ENABLE_HIP=ON \
+          -DXPU_HIP_ARCH=gfx942 \
+          -DXPU_BUILD_TESTS=ON \
+          -DXPU_BUILD_EXAMPLES=ON
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build -j3
+
+    - name: Check the HIP test is registered
+      run: ctest --test-dir ${{github.workspace}}/build -N | grep xpu_test_hip
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      env:
+        CTEST_OUTPUT_ON_FAILURE: 1
+      run: vgpu run ctest --verbose --no-tests=error
